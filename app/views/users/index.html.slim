@@ -3,7 +3,21 @@ h2 Привет котик
 div id='map' style="height: 500px; width: 100%"
 script src="//api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"
 p
-input id="coords" name="coords" 
+/input id="coords" name="coords" 
+
+= form_for User.new do |f|
+  p
+    = f.label :name
+    = f.text_field :name
+  p
+    = f.label :latitude
+    = f.text_field :latitude
+  p
+    = f.label :longitude
+    = f.text_field :longitude
+
+
+  = f.submit 'Create'
 coffee:
 
   ymaps.ready ->
@@ -27,16 +41,20 @@ coffee:
     ], {},
       draggable: true
       preset: 'islands#whiteStretchyIcon')
+
     myMap.geoObjects.add myPlacemark
     myMap.geoObjects.add mySearchResults
+
     mySearchResults.events.add 'click', (e) ->
       e.get('target').options.set 'preset', 'islands#redIcon'
       coord = e.get('target').geometry.getCoordinates()
       # alert  coord
       e.get('target').options.set 'visible', false
       window.myPlacemark.geometry.setCoordinates coord
-      document.getElementById('coords').value = coord
+      document.getElementById('user_latitude').value = coords[0]
+      document.getElementById('user_longitude').value = coords[1]
       return
+
     myPlacemark.events.add 'dragend', (e) ->
       # Получение ссылки на объект, который был передвинут.
       thisPlacemark = e.get('target')
@@ -44,8 +62,10 @@ coffee:
       coords = thisPlacemark.geometry.getCoordinates()
       # и вывод их при щелчке на метке
       thisPlacemark.properties.set 'balloonContent', coords
-      document.getElementById('coords').value = coords
+      document.getElementById('user_latitude').value = coords[0]
+      document.getElementById('user_longitude').value = coords[1]
       return    
+
     mySearchControl.events.add('resultselect', (e) ->
       index = e.get('index')
       mySearchControl.getResult(index).then (res) ->
@@ -55,4 +75,5 @@ coffee:
     ).add 'submit', ->
       mySearchResults.removeAll()
       return
+
   ymaps.ready init
